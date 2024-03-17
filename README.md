@@ -1,5 +1,13 @@
-# Module 1 Notes
-Docker and  Docker Compose are installed.
-![Screenshot from 2024-03-15 22-19-24](https://github.com/Olksdrd/mle-epam/assets/107131717/1106212b-01e0-41f2-a524-eb291182ebe1)
+### Project Info
 
-I'm planning to add separate folders for each module starting with #2.
+Personal repository for EPAM Data Science Lab, ML Engineering track.
+
+### Repo Structure
+
+Each module has its own folder with all the code and a separate readme file.
+
+1. Core ideas & Preparation for the course
+2. Containerization
+3. Experiment tracking
+4. Pipelines
+5. Model deployment
