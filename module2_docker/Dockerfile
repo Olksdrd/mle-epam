@@ -2,7 +2,8 @@ FROM ubuntu:jammy
 
 RUN apt-get -y update && apt-get -y install \
     git \
-    python3-pip=22.0.2+dfsg-1ubuntu0.4
+    python3-pip=22.0.2+dfsg-1ubuntu0.4 \
+    tzdata
 
 WORKDIR /code
 
@@ -18,6 +19,8 @@ RUN addgroup --gid $GROUP_ID $USERNAME && \
     adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID $USERNAME
 
 USER $USERNAME
+
+ENV TZ="Europe/Kyiv"
 
 # COPY --chown=$USERNAME:$USERNAME ./ ./
 COPY ./ ./
