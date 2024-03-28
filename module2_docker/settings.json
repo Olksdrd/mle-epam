@@ -1,0 +1,21 @@
+{
+    "general": {
+        "random_state": 42,
+        "status": "dev",
+        "datetime_format": "%d.%m.%Y_%H.%M",
+        "raw_data_dir": "data/raw_data",
+        "processed_data_dir": "data/processed_data",
+        "dataset_path": "data/raw_data/IMDB_dataset.csv",
+        "results_dir": "results",
+        "model_name": "distilbert-base-uncased-finetuned-sst-2-english",
+        "kaggle_url": "https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews"
+    },
+    "train": {
+        "test_size": 0.2,
+        "validation_size": 0.16
+    },
+    "inference": {
+        "batch_size": 20,
+        "model_name": "model.pickle"
+    }
+}

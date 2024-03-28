@@ -1,0 +1,17 @@
+# Directories
+data/
+results/
+temp/
+
+# File Types
+*.csv
+*.log
+*.zip
+
+# Environmental Variables
+.env
+
+# Configs
+__pycache__/
+*.py[cod]
+.vscode
