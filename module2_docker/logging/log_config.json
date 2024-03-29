@@ -14,7 +14,7 @@
         },
         "file_handler": {
             "level": "INFO",
-            "filename": "/code/logging/logfile.log",
+            "filename": "logging/logfile.log",
             "class": "logging.FileHandler",
             "formatter": "standard"
         }

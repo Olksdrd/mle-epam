@@ -1,10 +1,13 @@
 FROM ubuntu:jammy
 
+# Configures time inside the container
+ENV TZ=Europe/Kyiv
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt-get -y update && apt-get -y install \
     git \
     python3-pip=22.0.2+dfsg-1ubuntu0.4 \
     tzdata
-
 WORKDIR /code
 
 COPY ./requirements.txt ./
@@ -20,7 +23,4 @@ RUN addgroup --gid $GROUP_ID $USERNAME && \
 
 USER $USERNAME
 
-ENV TZ="Europe/Kyiv"
-
-# COPY --chown=$USERNAME:$USERNAME ./ ./
 COPY ./ ./
