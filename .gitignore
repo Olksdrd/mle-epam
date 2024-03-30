@@ -7,7 +7,6 @@ temp/
 *.csv
 *.log
 *.zip
-.dockerignore
 
 # Environmental Variables
 .env
