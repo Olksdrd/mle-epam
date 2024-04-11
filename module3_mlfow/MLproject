@@ -3,9 +3,17 @@ name: california_housing
 python_env: python_env.yaml
 
 entry_points:
-  basic_models:
+  linear_regression:
     data_file: housing.csv
-    command: "python basic_models.py"
+    command: "python basic_models/LinearRegression.py"
   
+  boosting:
+    data_file: housing.csv
+    command: "python basic_models/GradientBoosting.py"
+
+  forest:
+    data_file: housing.csv
+    command: "python basic_models/RandomForest.py"
+
   tuning:
     command: "python hpopt.py"

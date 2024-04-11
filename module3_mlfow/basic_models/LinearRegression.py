@@ -13,12 +13,18 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
 
-from utils import default_mlflow_run
-
 import mlflow
 
 #mlflow.set_tracking_uri("http://0.0.0.0:5001/")
 mlflow.set_tracking_uri("http://172.17.0.2:5000/")
+
+# import os
+# import sys
+# from pathlib import Path
+# ROOT_DIR = Path(os.path.abspath(__file__)).parent.parent
+# print(ROOT_DIR)
+# sys.path.append(os.path.dirname(ROOT_DIR))
+from utils import default_mlflow_run
 
 RANDOM_SEED = 42
 
@@ -51,16 +57,16 @@ X_train_raw, X_test_raw, y_train, y_test = train_test_split(X, y,
 # except:
 #     pass
 
-exp_id = mlflow.get_experiment_by_name('Basics_proj').experiment_id
+exp_id = mlflow.get_experiment_by_name('Basic_Models').experiment_id
 
 # Run experiments
 default_mlflow_run(LinearRegression(),
                    'lr_func',# exp_id,
                    X_train_raw, X_test_raw, y_train, y_test)
 
-default_mlflow_run(HistGradientBoostingRegressor(random_state=RANDOM_SEED),
-                   'hgb_func',# exp_id,
-                   X_train_raw, X_test_raw, y_train, y_test)
+# default_mlflow_run(HistGradientBoostingRegressor(random_state=RANDOM_SEED),
+#                    'hgb_func',# exp_id,
+#                    X_train_raw, X_test_raw, y_train, y_test)
 
 # default_mlflow_run(RandomForestRegressor(random_state=RANDOM_SEED),
 #                    'rfr_func',# exp_id,
