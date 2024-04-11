@@ -65,9 +65,38 @@ mlflow run -e boosting --env-manager local --experiment-name Basic_Models --run-
 mlflow run -e forest --env-manager local --experiment-name Basic_Models --run-name rfr .
 ```
 12. 
+```
+mlflow run -e tuning_hbr --env-manager local --experiment-name HBR_Tuning --run-name hbrv1_tuning .
+```
+13. 
+```
+mlflow run -e boostingv2 --env-manager local --experiment-name Bin_Inter_Feat --run-name hbrv2 .
+```
+14. 
+```
+mlflow run -e forestv2 --env-manager local --experiment-name Bin_Inter_Feat --run-name rfrv2 .
+```
+15. 
+```
+mlflow run -e tuning_hbrv2 --env-manager local --experiment-name HBR_Tuning --run-name hbrv2_tuning .
+```
 
+#### Step 4. Serving Best Model
 
+16. Find best model and retrain it `python best_model.py `
 
+17. Doesn't work:
+```
+mlflow models serve --model-uri runs:/f35101dc27794d75bf1bbac72cd1d202/HistGradientBoostingRegressor --no-conda -h 0.0.0.0  -p 5002
+```
+ModuleNotFoundError: No module named 'utils'
+
+Works: (But need to set that alias and then also import parameters)
+mlflow models serve -m "models:/HistGradientBoostingRegressor@production" --no-conda -h 0.0.0.0  -p 5002
+Then from host
+python serve.py
+
+Stop serving, close container, close server.
 
 export MLFLOW_TRACKING_URI=http://localhost:5001/
 
@@ -78,7 +107,8 @@ mlflow run -e tuning --env-manager local --experiment-name tuning_cont --run-nam
 
 
 
-mlflow models serve --model-uri runs:/b6f7fcb6047549a6b6378d6e55035064/LinearRegression --no-conda -p 5002
+mlflow models serve --model-uri runs:/
+30a9daaed9124d33bc0aa8884e7eec67/30a9daaed9124d33bc0aa8884e7eec67-hbr --no-conda -p 5002
 
 
 # works from the host. Try in container

@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 
 from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
 
-from utils import default_mlflow_run
+from utils import pipe_ver2_mlflow_run
 
 import mlflow
 
@@ -51,10 +51,10 @@ X_train_raw, X_test_raw, y_train, y_test = train_test_split(X, y,
 # except:
 #     pass
 
-exp_id = mlflow.get_experiment_by_name('Basic_Models').experiment_id
+exp_id = mlflow.get_experiment_by_name('Bin_Inter_Feat').experiment_id
 
 # Run experiments
 
-default_mlflow_run(HistGradientBoostingRegressor(random_state=RANDOM_SEED),
-                   'hgb_func',# exp_id,
+pipe_ver2_mlflow_run(RandomForestRegressor(random_state=RANDOM_SEED),
+                   'rfr_func',# exp_id,
                    X_train_raw, X_test_raw, y_train, y_test)

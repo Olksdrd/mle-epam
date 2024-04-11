@@ -2,6 +2,7 @@
 data/
 results/
 temp/
+mlruns/
 
 # File Types
 *.csv

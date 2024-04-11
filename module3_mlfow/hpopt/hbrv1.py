@@ -1,6 +1,5 @@
-# to avoid some obscure warnings https://github.com/mlflow/mlflow/issues/8605
-# import pkg_resources  # part of setuptools
-# version = pkg_resources.get_distribution("pip").version
+import warnings
+warnings.filterwarnings("ignore")
 
 from functools import partial
 from typing import Dict, List
