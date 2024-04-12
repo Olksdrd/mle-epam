@@ -4,27 +4,31 @@ python_env: python_env.yaml
 
 entry_points:
   linear_regression:
-    data_file: housing.csv
+    data_file: data/housing.csv
     command: "python basic_models/LinearRegression.py"
   
   boosting:
-    data_file: housing.csv
+    data_file: data/housing.csv
     command: "python basic_models/GradientBoosting.py"
 
   forest:
-    data_file: housing.csv
+    data_file: data/housing.csv
     command: "python basic_models/RandomForest.py"
 
   tuning_hbr:
     command: "python hpopt/hbrv1.py"
 
   boostingv2:
-    data_file: housing.csv
+    data_file: data/housing.csv
     command: "python new_features/GradientBoostingv2.py"
 
   forestv2:
-    data_file: housing.csv
+    data_file: data/housing.csv
     command: "python new_features/RandomForestv2.py"
 
   tuning_hbrv2:
     command: "python hpopt/hbrv2.py"
+
+  model_test:
+    data_file: data/housing.csv
+    command: "python basic_models/model.py"

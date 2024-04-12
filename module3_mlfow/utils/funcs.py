@@ -1,27 +1,113 @@
 import tempfile
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
 
 import matplotlib.pyplot as plt
 from sklearn.metrics import PredictionErrorDisplay
-
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer, make_column_selector
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.model_selection import train_test_split
+
 from sklearn.utils import estimator_html_repr
 from sklearn.metrics import (r2_score,
                              mean_absolute_error,
                              mean_squared_error
                              )
 
+# from preprocessing import (preprocessor_v1, preprocessor_trees,
+#                            FeatureInteractions, BinFeatures)
+
 
 import mlflow
 from mlflow.models.signature import infer_signature
 
+
+
+
+
+
+
+import numpy as np
+import pandas as pd
+
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer, make_column_selector
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+
+
+num_pipe_v1 = Pipeline([
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', MinMaxScaler())
+])
+
+preprocessor_v1 = ColumnTransformer([
+    ('cat', OneHotEncoder(), make_column_selector(dtype_include='object')),
+    ('num', num_pipe_v1, make_column_selector(dtype_include=np.number))
+], verbose_feature_names_out=False)
+
+
+class FeatureInteractions(BaseEstimator, TransformerMixin):
+  def fit(self, X, y=None):
+    return self
+
+  def transform(self, X):
+    X = X.copy()
+    X['lat*long'] = X['latitude'] * X['longitude']
+    X['lat/long'] = X['latitude'] / X['longitude']
+    X['rooms_per_house'] = X['total_rooms'] / X['households']
+    X['bedrooms_per_house'] = X['total_bedrooms'] / X['households']
+    X['rooms_per_pop'] = X['total_rooms'] / X['population']
+    X['bedrooms_per_pop'] = X['total_bedrooms'] / X['population']
+    X['bedroom_frac'] = X['total_bedrooms'] / X['total_rooms']
+    X['pop_per_house'] = X['population'] / X['households']
+
+    X['rooms_per_income'] = X['total_rooms'] / X['median_income']
+    X['bedrooms_per_income'] = X['total_bedrooms'] / X['median_income']
+
+    return X
+  
+
+class BinFeatures(BaseEstimator, TransformerMixin):
+  def __init__(self, columns):
+    self.columns = columns
+
+  def fit(self, X, y=None):
+    return self
+
+  def transform(self, X):
+    X = X.copy()
+    if 'population' in self.columns:
+      bins = np.array([X['population'].min()-1, 500, 1000, 1500, 2500, X['population'].max()+1], dtype='float64')
+      X['PopulationBinned'] = pd.cut(X['population'], bins).cat.codes.astype(str)
+
+    if 'median_income' in self.columns:
+      bins = np.array([X['median_income'].min()-1, 1.75, 2.5, 3, 3.5, 4, 5, 6.5, X['median_income'].max()+1], dtype='float64')
+      X['IncomeBinned'] = pd.cut(X['median_income'], bins).cat.codes.astype(str)
+
+    return X
+  
+
+num_pipe_trees = Pipeline([
+    ('imputer', SimpleImputer(strategy='median'))
+])
+
+preprocessor_trees = ColumnTransformer([
+    ('cat', OneHotEncoder(), make_column_selector(dtype_include='object')),
+    ('num', num_pipe_trees, make_column_selector(dtype_include=np.number))
+], verbose_feature_names_out=False)
+
+
+
+
+def load_data(path, random_state=42):
+    X = pd.read_csv(path)
+    y = X.pop('median_house_value')
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                    random_state=random_state)
+    
+    return X_train, X_test, y_train, y_test
 
 
 def eval_model(model, X_train, X_test, y_train, y_test):
@@ -36,32 +122,17 @@ def eval_model(model, X_train, X_test, y_train, y_test):
   test_rmse = mean_squared_error(y_test,test_predicted, squared=False)
   test_mae = mean_absolute_error(y_test, test_predicted)
 
-#   print(f'R2  : {r2:.2f}')
-#   print(f'RMSE: {rmse:.2f}')
-#   print(f'MAE : {mae:.2f}')
-
   return {'train_r2': train_r2, 'train_rmse': train_rmse, 'train_mae': train_mae,
           'test_r2': test_r2, 'test_rmse': test_rmse, 'test_mae': test_mae}
 
 
 
-num_pipe_v1 = Pipeline([
-    ('imputer', SimpleImputer(strategy='median')),
-    ('scaler', MinMaxScaler())
-])
-
-preprocessor_v1 = ColumnTransformer([
-    ('cat', OneHotEncoder(), make_column_selector(dtype_include='object')),
-    ('num', num_pipe_v1, make_column_selector(dtype_include=np.number))
-], verbose_feature_names_out=False)
-
-
 def default_mlflow_run(regressor,
-                       run_name,# exp_id,
+                       # run_name, exp_id,
                        X_train, X_test, y_train, y_test):
 
     with mlflow.start_run(
-        run_name=run_name,# experiment_id=exp_id
+        # run_name=run_name, experiment_id=exp_id
         ) as run:
 
 
@@ -73,7 +144,7 @@ def default_mlflow_run(regressor,
         model_name = type(pipe['regressor']).__name__
 
         print(f'Logging {model_name} model...')
-        print('Run ID: ', run.info.run_id)
+        # print('Run ID: ', run.info.run_id)
 
         pipe.fit(X_train, y_train)
 
@@ -105,65 +176,13 @@ def default_mlflow_run(regressor,
         
 
 
-class FeatureInteractions(BaseEstimator, TransformerMixin):
-  def fit(self, X, y=None):
-    return self
-
-  def transform(self, X):
-    X = X.copy()
-    X['lat*long'] = X['latitude'] * X['longitude']
-    X['lat/long'] = X['latitude'] / X['longitude']
-    X['rooms_per_house'] = X['total_rooms'] / X['households']
-    X['bedrooms_per_house'] = X['total_bedrooms'] / X['households']
-    X['rooms_per_pop'] = X['total_rooms'] / X['population']
-    X['bedrooms_per_pop'] = X['total_bedrooms'] / X['population']
-    X['bedroom_frac'] = X['total_bedrooms'] / X['total_rooms']
-    X['pop_per_house'] = X['population'] / X['households']
-
-    X['rooms_per_income'] = X['total_rooms'] / X['median_income']
-    X['bedrooms_per_income'] = X['total_bedrooms'] / X['median_income']
-
-    return X
-  
-
-
-class BinFeatures(BaseEstimator, TransformerMixin):
-  def __init__(self, columns):
-    self.columns = columns
-
-  def fit(self, X, y=None):
-    return self
-
-  def transform(self, X):
-    X = X.copy()
-    if 'population' in self.columns:
-      bins = np.array([X['population'].min()-1, 500, 1000, 1500, 2500, X['population'].max()+1], dtype='float64')
-      X['PopulationBinned'] = pd.cut(X['population'], bins).cat.codes.astype(str)
-
-    if 'median_income' in self.columns:
-      bins = np.array([X['median_income'].min()-1, 1.75, 2.5, 3, 3.5, 4, 5, 6.5, X['median_income'].max()+1], dtype='float64')
-      X['IncomeBinned'] = pd.cut(X['median_income'], bins).cat.codes.astype(str)
-
-    return X
-
-
-
-num_pipe_trees = Pipeline([
-    ('imputer', SimpleImputer(strategy='median'))
-])
-
-preprocessor_trees = ColumnTransformer([
-    ('cat', OneHotEncoder(), make_column_selector(dtype_include='object')),
-    ('num', num_pipe_trees, make_column_selector(dtype_include=np.number))
-], verbose_feature_names_out=False)
-
 
 def pipe_ver2_mlflow_run(regressor,
-                       run_name,# exp_id,
+                       # run_name, exp_id,
                        X_train, X_test, y_train, y_test):
 
     with mlflow.start_run(
-        run_name=run_name,# experiment_id=exp_id
+        # run_name=run_name, experiment_id=exp_id
         ) as run:
 
 
@@ -177,7 +196,7 @@ def pipe_ver2_mlflow_run(regressor,
         model_name = type(pipe['regressor']).__name__
 
         print(f'Logging {model_name} model...')
-        print('Run ID: ', run.info.run_id)
+        # print('Run ID: ', run.info.run_id)
 
         pipe.fit(X_train, y_train)
 

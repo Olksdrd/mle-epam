@@ -36,7 +36,7 @@ docker build -t mlflow_client .
 ```
 6. Run the client container
 ```
-docker run -it -v ./:/code --name client -p 5002:5002 mlflow_client
+docker run -it -v ./:/code --name client -p 5002:5002 -e MLFLOW_TRACKING_URI=http://172.17.0.2:5000/ mlflow_client
 ```
 Note: sometimes this container for some reason eats half of my RAM. Then restarting and reattaching to it helps with this issue.
 
@@ -56,6 +56,7 @@ For example, `export MLFLOW_TRACKING_URI=http://172.17.0.2:5000/`. Note that bot
 ```
 mlflow run -e linear_regression --env-manager local --experiment-name Basic_Models --run-name lr .
 ```
+mlflow run -e model_test --env-manager local --experiment-name Basic_Models --run-name lr .
 10. Remove scaler from trees
 ```
 mlflow run -e boosting --env-manager local --experiment-name Basic_Models --run-name hbr .
@@ -83,7 +84,7 @@ mlflow run -e tuning_hbrv2 --env-manager local --experiment-name HBR_Tuning --ru
 
 #### Step 4. Serving Best Model
 
-16. Find best model and retrain it `python best_model.py `
+16. Find best model and retrain it `python serving/best_model.py`
 
 17. Doesn't work:
 ```
@@ -92,9 +93,9 @@ mlflow models serve --model-uri runs:/f35101dc27794d75bf1bbac72cd1d202/HistGradi
 ModuleNotFoundError: No module named 'utils'
 
 Works: (But need to set that alias and then also import parameters)
-mlflow models serve -m "models:/HistGradientBoostingRegressor@production" --no-conda -h 0.0.0.0  -p 5002
-Then from host
-python serve.py
+mlflow models serve -m "models:/HistGradientBoostingRegressor@prod" --no-conda -h 0.0.0.0  -p 5002
+Then from host (don't forget to go to module3_mlflow folder)
+`python serving/get_predictions.py`
 
 Stop serving, close container, close server.
 

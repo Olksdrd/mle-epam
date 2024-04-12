@@ -1,60 +1,53 @@
 import warnings
 warnings.filterwarnings("ignore")
+import os
+import sys
 
 from functools import partial
-from typing import Dict, List
 from hyperopt import fmin, tpe, Trials, hp
-import pandas as pd
 
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.model_selection import train_test_split
 
 import mlflow
 
-from utils import preprocessor_v1, eval_model
-
-#mlflow.set_tracking_uri("http://0.0.0.0:5001/")
-mlflow.set_tracking_uri("http://172.17.0.2:5000/")
-
-RANDOM_SEED = 42
-
-# import data
-X = pd.read_csv('housing.csv')
-y = X.pop('median_house_value')
-
-X_train_raw, X_test_raw, y_train, y_test = train_test_split(X, y,
-                                                    random_state=RANDOM_SEED)
+sys.path.insert(0, os.getcwd())
+import utils.configs as configs
+import utils.funcs as f
 
 
-def objective_function(params: Dict, 
-                       X_train: pd.DataFrame, X_test: pd.DataFrame,
-                       y_train: pd.DataFrame, y_test: pd.DataFrame):
+# Configure mlflow
+mlflow.set_tracking_uri(os.environ.get('MLFLOW_TRACKING_URI')) # just in case if needed
+
+
+# Load data
+X_train_raw, X_test_raw, y_train, y_test = f.load_data(configs.DATA_PATH,
+                                                       random_state=configs.RANDOM_STATE)
+
+
+def objective_function(params, X_train, X_test, y_train, y_test):
     
     params.update({'regressor__max_depth': int(params['regressor__max_depth'])})
     params.update({'regressor__l2_regularization': float(params['regressor__l2_regularization'])})
 
     pipe = Pipeline([
-        ('preprocessing', preprocessor_v1),
-        ('regressor', HistGradientBoostingRegressor(random_state=RANDOM_SEED))
+        ('preprocessing', f.preprocessor_v1),
+        ('regressor', HistGradientBoostingRegressor(random_state=configs.RANDOM_STATE))
     ])
 
 
     pipe.set_params(**params)
 
-    with mlflow.start_run(
-        #experiment_id=exp_id, 
-        nested=True) as run:
+    with mlflow.start_run(nested=True) as run:
         pipe.fit(X_train, y_train)
-        # preds = pipe.predict(X_test)
 
         mlflow.log_params(pipe['regressor'].get_params())
 
-        metrics = eval_model(pipe, X_train_raw, X_test_raw, y_train, y_test)
+        metrics = f.eval_model(pipe, X_train, X_test, y_train, y_test)
         mlflow.log_metrics(metrics)
         mlflow.sklearn.log_model(pipe, f'{run.info.run_id}-hbr')
 
-    return metrics['test_rmse'] # we're going to minimize it, so need minus for r2, accuracy, f1-score etc
+    return metrics['test_rmse']
 
 
 
@@ -64,9 +57,7 @@ search_space = {
 }
 
 
-with mlflow.start_run(
-    # run_name='HpTuning', experiment_id=exp_id
-    ) as run:
+with mlflow.start_run() as run:
 
     best_params = fmin(
         fn=partial(objective_function, 
@@ -77,13 +68,13 @@ with mlflow.start_run(
         ),
         space=search_space,
         algo=tpe.suggest,
-        max_evals=5,
+        max_evals=configs.HPOPT_NUM_TRIALS,
         trials=Trials()
     )
 
     pipe = Pipeline([
-        ('preprocessing', preprocessor_v1),
-        ('regressor', HistGradientBoostingRegressor(random_state=RANDOM_SEED))
+        ('preprocessing', f.preprocessor_v1),
+        ('regressor', HistGradientBoostingRegressor(random_state=configs.RANDOM_STATE))
     ])
 
     best_params.update({'regressor__max_depth': int(best_params['regressor__max_depth'])})
@@ -96,6 +87,6 @@ with mlflow.start_run(
 
     mlflow.log_params(pipe['regressor'].get_params())
 
-    metrics = eval_model(pipe, X_train_raw, X_test_raw, y_train, y_test)
+    metrics = f.eval_model(pipe, X_train_raw, X_test_raw, y_train, y_test)
     mlflow.log_metrics(metrics)
     mlflow.sklearn.log_model(pipe, f'{run.info.run_id}-hbr')
