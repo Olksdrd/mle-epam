@@ -4,7 +4,7 @@ DATASET_URL = 'https://www.kaggle.com/datasets/camnugent/california-housing-pric
 DATA_PATH = 'data/housing.csv'
 
 RANDOM_STATE = 42
-HPOPT_NUM_TRIALS = 5
+HPOPT_NUM_TRIALS = 30
 
 MLFLOW_TRACKING_URI = 'http://0.0.0.0:5001/'
 MLFLOW_SERVING_URI = 'http://0.0.0.0:5002/invocations' #'http://127.0.0.1:5002/invocations'

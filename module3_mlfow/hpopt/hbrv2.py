@@ -53,8 +53,8 @@ def objective_function(params, X_train, X_test, y_train, y_test):
 
 
 search_space = {
-    'regressor__max_depth': hp.quniform('regressor__max_depth', 10, 150, 5),
-    'regressor__l2_regularization': hp.quniform('regressor__l2_regularization', 0, 5, 1)
+    'regressor__max_depth': hp.quniform('regressor__max_depth', 5, 75, 5),
+    'regressor__l2_regularization': hp.quniform('regressor__l2_regularization', 0, 3, 1)
 }
 
 

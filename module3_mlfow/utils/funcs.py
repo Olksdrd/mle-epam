@@ -172,7 +172,8 @@ def default_mlflow_run(regressor,
         mlflow.sklearn.log_model(pipe,
                                 artifact_path=model_name,
                                 signature=model_signature,
-                                registered_model_name=model_name)
+                                registered_model_name=model_name,
+                                serialization_format=mlflow.sklearn.SERIALIZATION_FORMAT_CLOUDPICKLE)
         
 
 
@@ -224,4 +225,5 @@ def pipe_ver2_mlflow_run(regressor,
         mlflow.sklearn.log_model(pipe,
                                 artifact_path=model_name,
                                 signature=model_signature,
-                                registered_model_name=model_name)
+                                registered_model_name=model_name,
+                                serialization_format=mlflow.sklearn.SERIALIZATION_FORMAT_CLOUDPICKLE)
