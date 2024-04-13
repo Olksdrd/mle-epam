@@ -16,6 +16,7 @@ entry_points:
     command: "python basic_models/RandomForest.py"
 
   tuning_hbr:
+    data_file: data/housing.csv
     command: "python hpopt/hbrv1.py"
 
   boostingv2:
@@ -27,8 +28,5 @@ entry_points:
     command: "python new_features/RandomForestv2.py"
 
   tuning_hbrv2:
-    command: "python hpopt/hbrv2.py"
-
-  model_test:
     data_file: data/housing.csv
-    command: "python basic_models/model.py"
+    command: "python hpopt/hbrv2.py"

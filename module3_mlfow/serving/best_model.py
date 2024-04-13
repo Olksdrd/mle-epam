@@ -3,24 +3,20 @@ warnings.filterwarnings("ignore")
 
 import os
 import sys
+import tempfile
+from pathlib import Path
 
 import mlflow
 from mlflow import MlflowClient
+from mlflow.models.signature import infer_signature
 
 sys.path.insert(0, os.getcwd())
 import utils.configs as configs
 import utils.funcs as f
 
-import pandas as pd
-
-from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import HistGradientBoostingRegressor
-
-
-import mlflow
-from mlflow.models.signature import infer_signature
-from mlflow import MlflowClient
+from sklearn.utils import estimator_html_repr
 
 
 
@@ -31,8 +27,7 @@ def final_run(regressor, run_name,
 
         pipe = Pipeline([
             ('interactions', f.FeatureInteractions()),
-            ('binning', f.BinFeatures(['population', 'median_income'])),
-            ('preprocessing', f.preprocessor_trees),
+            ('preprocessing', f.preprocessor_v2),
             ('regressor', regressor)
         ])
 
@@ -46,6 +41,13 @@ def final_run(regressor, run_name,
 
         metrics = f.eval_model(pipe, X_train, X_test, y_train, y_test)
         mlflow.log_metrics(metrics)
+
+        estimator = estimator_html_repr(pipe)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            path = Path(tmp_dir, 'my_estimator.html')
+            path.write_text(estimator, encoding="utf-16")
+
+            mlflow.log_artifact(path)
 
         model_signature = infer_signature(X_train, y_train)
         

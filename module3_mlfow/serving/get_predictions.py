@@ -11,7 +11,12 @@ import utils.funcs as f
 _, lets_pretend_this_is_new_data, _, _ = f.load_data(configs.DATA_PATH,
                                                      random_state=configs.RANDOM_STATE)
 
-batch = lets_pretend_this_is_new_data.tail(40)
+try:
+    batch_size = int(sys.argv[1])
+except:
+    batch_size = 40
+
+batch = lets_pretend_this_is_new_data.tail(batch_size)
 data = {"dataframe_split": batch.to_dict(orient="split")}
 
 headers = {'Content-Type': 'application/json'}

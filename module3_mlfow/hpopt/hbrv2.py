@@ -31,8 +31,7 @@ def objective_function(params, X_train, X_test, y_train, y_test):
 
     pipe = Pipeline([
         ('interactions', f.FeatureInteractions()),
-        ('binning', f.BinFeatures(['population', 'median_income'])),
-        ('preprocessing', f.preprocessor_trees),
+        ('preprocessing', f.preprocessor_v2),
         ('regressor', HistGradientBoostingRegressor(random_state=configs.RANDOM_STATE))
     ])
 
@@ -53,8 +52,8 @@ def objective_function(params, X_train, X_test, y_train, y_test):
 
 
 search_space = {
-    'regressor__max_depth': hp.quniform('regressor__max_depth', 5, 75, 5),
-    'regressor__l2_regularization': hp.quniform('regressor__l2_regularization', 0, 3, 1)
+    'regressor__max_depth': hp.quniform('regressor__max_depth', 5, 150, 5),
+    'regressor__l2_regularization': hp.quniform('regressor__l2_regularization', 0, 6, 1)
 }
 
 
@@ -75,8 +74,7 @@ with mlflow.start_run() as run:
 
     pipe = Pipeline([
         ('interactions', f.FeatureInteractions()),
-        ('binning', f.BinFeatures(['population', 'median_income'])),
-        ('preprocessing', f.preprocessor_trees),
+        ('preprocessing', f.preprocessor_v2),
         ('regressor', HistGradientBoostingRegressor(random_state=configs.RANDOM_STATE))
     ])
 
