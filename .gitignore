@@ -2,11 +2,13 @@
 results/
 temp/
 mlruns/
+data/
 
 # File Types
 *.csv
 *.log
 *.zip
+*.pkl
 
 # Environmental Variables
 .env
@@ -15,3 +17,8 @@ mlruns/
 __pycache__/
 *.py[cod]
 .vscode
+
+# airflow
+airflow.*
+*webserver*
+logs/
