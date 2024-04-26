@@ -41,21 +41,12 @@ conda install -c conda-forge --file requirements.txt
 8. Create a new airflow user
 ```
 airflow users create \
-    --username admin \
+    --username <username> \
     --firstname <name> \
     --lastname <name> \
     --role Admin \
     --email <email> \
-    --password 1234
-```
-```
-airflow users create \
-    --username admin \
-    --firstname Oleksandr \
-    --lastname Drozdov \
-    --role Admin \
-    --email alexua.drozdow@gmail.com \
-    --password 1234
+    --password <password>
 ```
 9. Start airflow UI by running `airflow webserver -p 8080`
 
