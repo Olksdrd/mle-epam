@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 
 
 def feature_interactions():
+    """Generates new features by combining existing ones"""
     df = pd.read_csv('data/housing_clean.csv')
 
     df['lat*long'] = df['latitude'] * df['longitude']
@@ -20,6 +21,8 @@ def feature_interactions():
 
     df.to_csv('data/housing_clean.csv', index=False)
 
+    print('Feature interactions added.')
+
 
 def train_val_split():
     df = pd.read_csv('data/housing_clean.csv')
@@ -28,3 +31,5 @@ def train_val_split():
 
     df_train.to_csv('data/data_train.csv', index=False)
     df_val.to_csv('data/data_val.csv', index=False)
+
+    print('Saved to data/data_train.csv, data/data_val.csv')

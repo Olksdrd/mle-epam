@@ -1,5 +1,5 @@
-from datetime import datetime
 import os
+from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -15,15 +15,19 @@ from utils.preprocessing import (feature_interactions,
                                  train_val_split)
 from utils.training import train_model, validate_model
 
-os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Set up working directory in 'module4_airflow' folder
+module4_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(module4_path)
 
 
 with DAG(
-    dag_id='preprocessing_data_v1',
-    description='Loads and cleans California housing dataset.',
+    dag_id='housing_hgb',
+    description='HGB prediction for California housing dataset.',
     start_date=datetime(2024, 4, 20),
     schedule=None,
-    catchup=False
+    catchup=False,
+    tags=['module4', 'cali_housing']
 ) as dag:
 
     with TaskGroup('load', tooltip='Loading dataset') as load_group:
@@ -34,7 +38,7 @@ with DAG(
         )
 
         read_dataset = PythonOperator(
-            task_id='read_df',
+            task_id='read_data',
             python_callable=read_data
         )
 

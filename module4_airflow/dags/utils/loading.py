@@ -6,6 +6,7 @@ import pandas as pd
 
 
 def load_data():
+    """Loads California housing dataset from github"""
     path = './data'
     if not os.path.exists(path):
         os.mkdir(path)
@@ -17,6 +18,12 @@ def load_data():
 
 
 def read_data():
+    """
+    Makes the dataset not so clean, so the pipeline is more interesting:
+    - converts total_bedrooms to str.
+    - adds NAs as -999.
+    - splits into two tablws.
+    """
     df = pd.read_csv('data/housing.csv')
 
     df['total_bedrooms'] = df['total_bedrooms'].astype(str)
@@ -32,5 +39,10 @@ def read_data():
 
     df_geography.to_csv('data/housing_geo.csv', index=False)
     df_rest.to_csv('data/housing_districts.csv', index=False)
+
+    print('''Data saved to:
+          - data/housing_geo.csv
+          - data/housing_districts.csv'''
+          )
 
     os.remove('data/housing.csv')

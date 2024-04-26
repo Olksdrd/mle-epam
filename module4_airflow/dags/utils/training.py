@@ -9,7 +9,6 @@ from sklearn.preprocessing import OneHotEncoder, KBinsDiscretizer
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.model_selection import cross_val_score, ShuffleSplit
-
 from sklearn.metrics import (r2_score,
                              mean_absolute_error,
                              mean_squared_error)
@@ -48,6 +47,7 @@ cls = make_pipeline(
 
 
 def train_model():
+    """Trains HGB model and saves the training pipeline"""
     X_train = pd.read_csv('data/data_train.csv')
     X_val = pd.read_csv('data/data_val.csv')
     y_train = X_train.pop('median_house_value')
@@ -70,5 +70,5 @@ def validate_model():
     spliter = ShuffleSplit(n_splits=5, test_size=0.2, random_state=42)
     res = cross_val_score(cls, X, y, cv=spliter)
 
-    print(list(res))
-    print(res.mean())
+    print('CV results (R2): ', list(res))
+    print('Mean R2 score: ', res.mean())
