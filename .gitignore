@@ -3,6 +3,9 @@ results/
 temp/
 mlruns/
 data/
+models/
+*.egg-info/
+utils_old/
 
 # File Types
 *.csv

@@ -1,0 +1,9 @@
+# Folders
+logs/
+dags/
+
+#Files
+airflow.*
+webserver.*
+Dockerfile
+.gitignore
