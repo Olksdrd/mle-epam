@@ -19,14 +19,14 @@ os.chdir(module5_path)
 with DAG(
     dag_id='batch_serving',
     start_date=datetime(2024, 4, 20),
-    schedule='*/2 * * * *',
+    schedule='*/5 * * * *',
     catchup=False,
     tags=['module5'],
 ) as dag:
 
     wait_for_model = FileSensor(
         task_id="wait_for_model",
-        filepath=module5_path + "/models/cls.pkl",
+        filepath=module5_path + "/models/hgb/model.pkl",
         poke_interval=30,
         retries=1
     )

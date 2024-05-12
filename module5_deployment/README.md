@@ -1,22 +1,35 @@
+### Project Desctiption
+
 ### Repo Structure
 
 ```
 .
 ├── dags
-│   ├── cali_housing_dag.py
-│   └── utils
-│       ├── cleaning.py
-│       ├── __init__.py
-│       ├── loading.py
-│       ├── preprocessing.py
-│       └── training.py
+│   ├── batch_serving_dag.py
+│   └── cali_housing_dag.py
+├── dagtasks
+│   ├── dagtasks
+│   │   ├── cleaning.py
+│   │   ├── __init__.py
+│   │   ├── loading.py
+│   │   ├── preprocessing.py
+│   │   ├── serving.py
+│   │   └── training.py
+│   ├── README.md
+│   └── setup.py
+├── Dockerfile
+├── .dockerignore
+├── get_preds.py
 ├── README.md
-└── requirements.txt
+├── requirements.txt
+└── tests
+    ├── batch_tests.py
+    └── model_tests.py
 ```
 
-### Running the project
+### Model Training
 
-1. Navigate to `module4_airflow` directory
+1. Navigate to `module5_deployment` directory
 
 2. Set up virtual environment (using conda or venv). For conda:
 
@@ -27,18 +40,21 @@ Then `conda activate <env_name>`. And install all the packages
 ```
 conda install -c conda-forge --file requirements.txt
 ```
+3. Then install all functions needed to run an airflow workflow.
+```
+pip install -e ./dagtasks
+```
+4. Set up airflow home directory in a current folder `export AIRFLOW_HOME=$(pwd)` (or whatever is an equivalent in powershell).
 
-3. Set up airflow home directory in a current folder `export AIRFLOW_HOME=$(pwd)` (or whatever is an equivalent in powershell).
+5. Initialize a database by `airflow db init`.
 
-4. Initialize a database by `airflow db init`.
+6. (Optional) Check airflow.cfg file to verify that dags folder location in `dags_folder` variable is correct (the default path should be correct). Then set `load_examples = False` to make airflow UI less cluttered.
 
-5. (Optional) Check airflow.cfg file to verify that dags folder location in `dags_folder` variable is correct (the default path should be correct). Then set `load_examples = False` to make airflow UI less cluttered.
+7. Next, start a scheduler by running `airflow scheduler`.
 
-6. Next, start a scheduler by running `airflow scheduler`.
+8. Open new terminal, navigate to module5_deployment and set up `export AIRFLOW_HOME=$(pwd)` in it again.
 
-7. Open new terminal, navigate to module4_airflow and set up `export AIRFLOW_HOME=$(pwd)` in it again.
-
-8. Create a new airflow user
+9. Create a new airflow user
 ```
 airflow users create \
     --username user \
@@ -48,27 +64,33 @@ airflow users create \
     --email user@email.com \
     --password 1234
 ```
-9. Start airflow UI by running `airflow webserver -p 8080`
+10. Start airflow UI by running `airflow webserver -p 8080`
 
-10. Open the UI in a browser at http://0.0.0.0:8080 and login.
+11. Open the UI in a browser at http://0.0.0.0:8080 and login.
 
-11. Turn the dag on and run it in the UI.
+12. Turn the dag on and run it in the UI.
 
-sudo service docker start
+13. First run `housing_hgb` DAG. But before that make sure that docker daemon is running, since the last task in a DAG builds a docker image for online serving.
 
-build image
+### Batch Serving
 
-docker run -it --name server -p 5002:5002 mlflow bash
+1. Now run `batch_serving` DAG. Note that since we're using SequentialExecutor, running this DAG before the previous will lead to an infinite queue.
 
-mlflow models serve -m $(pwd)/models/hgb --no-conda -h 0.0.0.0 -p 5002
+2. Once activated, the DAG will process a (pseudo)-new batch of data every 5 minutes.
 
-executor = LocalExecutor with postgres
+### Online Serving
 
-add requests==2.31.0 to requirements
+1. Run the following command to start serving the model
+```
+docker run -d --name server -p 5002:5002 mlflow 
+```
+2. It'll take around 5-10 second to start serving. After that we can send requests with new datapoints for prediction, as for example in a `get_preds.py` file. These results can be than redirected to a database or wherever they are needed.
 
-### Comments on the pipeline
+### Additional Comments
 
-- Since the dataset used in a previous module is too clean, I've manually made it less clean just so there are things to fix further in a pipeline. Obviously, this is redundant, but that allowed me to just stick with the dataset I used previously.
-- All intermediate transformations are saved into csv files in a data/ folder. Splitting it into several tasks and saving/loading makes the pipeline somewhat slower, but also more modular (with each task doing more or less one thing or at least a set of related operations) so it's (hopefully) easier to rework it by simply removing some tasks if they are not needed. 
-- Feature interactions are added before train/test split since they are all row-wise operations that don't involve the target variable, so there shouldn't be any data leakage here.
-- Since there can be data leakage between cross-validation folds in a training pipeline (say, due to the use of K-means for binning features), we need to perform cross-validation on an entire pipeline. So it's just way more convenient to leave the sklearn pipeline as a one piece and not to split into several tasks. This allows to avoid saving and loading all the intermediate steps.
+- Airflow is not containerazed due to it running *extremely* bad and laggy inside containers on my laptop.
+- In case if BashOperators don't work properly on your OS, they could be just skipped. The only thing they do are (a) building docker image (can be easily done manually) and (b) perform some simple unit test (nothing would happen in this toy example if they are skipped).
+- Package doesn't include airflow DAGs themselves, since that would require changing airflow dag directory depending on the environment, which seems somewhat annoying.
+- Unit tests are not packaged since it would just lead to unnecessary complications (maybe there is a simple way to make it work specifically with airflow, but I haven't found it).
+- See module 4 for some additional notes on the pipeline.
+

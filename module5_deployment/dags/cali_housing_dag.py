@@ -4,6 +4,7 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
+from airflow.operators.bash import BashOperator
 
 from dagtasks.loading import load_data, read_data
 from dagtasks.cleaning import (merge_tables,
@@ -17,8 +18,8 @@ from dagtasks.training import detect_outliers, train_model, validate_model
 
 
 # Set up working directory in 'module4_airflow' folder
-module4_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-os.chdir(module4_path)
+module5_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(module5_path)
 
 
 with DAG(
@@ -66,14 +67,8 @@ with DAG(
             python_callable=merge_tables
         )
 
-        # columns_signature = PythonOperator(
-        #     task_id='save_columns_signature',
-        #     python_callable=save_columns_signature
-        # )
-
         convert_dtypes >> missing_indicator
         [missing_indicator, unknown_category] >> perform_join
-        # perform_join >> columns_signature
 
     with TaskGroup(group_id='preprocess',
                    tooltip='Data preprocessing') as preprocess_group:
@@ -108,6 +103,11 @@ with DAG(
             python_callable=validate_model
         )
 
-        outliers >> training >> cross_validation
+        build_image = BashOperator(
+            task_id='build_docker_image',
+            bash_command=f'docker build -t mlflow {module5_path}/.'
+        )
+
+        outliers >> training >> cross_validation >> build_image
 
     load_group >> clean_group >> preprocess_group >> train_group

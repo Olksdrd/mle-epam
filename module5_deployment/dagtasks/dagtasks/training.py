@@ -35,6 +35,7 @@ def _eval_model(model, X_train, X_test, y_train, y_test):
             'test_mae': mean_absolute_error(y_test, test_predicted)}
 
 
+# Sklearn pipeline components
 num_union = FeatureUnion([
     ('identity', 'passthrough'),
     ('binning', make_pipeline(KBinsDiscretizer(strategy='kmeans'),

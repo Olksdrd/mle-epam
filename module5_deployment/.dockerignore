@@ -1,9 +1,14 @@
 # Folders
-logs/
 dags/
+dagtasks/
+data/
+logs/
+results/
+tests/
 
 #Files
 airflow.*
 webserver.*
 Dockerfile
-.gitignore
+*.py
+*.md

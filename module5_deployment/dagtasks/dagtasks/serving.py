@@ -22,21 +22,6 @@ def get_batch(batch_size):
     current_date_time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     file_name = f'batch_{current_date_time}'
     batch.to_csv(f'results/batch_new/{file_name}.csv', index=False)
-    # return f'results/batch_new/{file_name}.csv'
-
-
-# def check_columns():
-#     with open('models/col_signature.pkl', 'rb') as f:
-#         col_signature = pickle.load(f)
-
-#     path = './results/batch_new'
-#     batches = [f for f in os.listdir(path) if isfile(join(path, f))]
-#     if batches:
-#         for batch_name in batches:
-#             batch = pd.read_csv(f'{path}/{batch_name}')
-
-#             res = col_signature.transform(batch)
-#             res.to_csv(f'{path}/{batch_name}.csv')
 
 
 def check_for_outliers():
@@ -64,7 +49,7 @@ def check_for_outliers():
 def get_predictions():
     """Generate predictions for each new batch of data"""
     # Load the model
-    with open('models/cls.pkl', 'rb') as f:
+    with open('models/hgb/model.pkl', 'rb') as f:
         cls = pickle.load(f)
 
     # Generate predictions for each new batch
