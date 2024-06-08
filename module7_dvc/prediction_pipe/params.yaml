@@ -1,0 +1,9 @@
+data_split:
+  test_size: 0.2
+  random_seed: 42
+
+training:
+  random_seed: 42
+  n_bins: 10
+  max_depth: null
+  l2_regularization: 0

@@ -1,0 +1,10 @@
+isolation_forest:
+  contamination: 0.05
+  random_seed: 42
+
+elliptic_envelope:
+  contamination: 0.05
+  random_seed: 42
+
+one_class_svm:
+  gamma: 0.05

@@ -1,0 +1,82 @@
+schema: '2.0'
+stages:
+  prepare_data:
+    cmd: python stages/prepare_data.py
+    deps:
+    - path: ../data/split
+      hash: md5
+      md5: 77a802640800165bc0bac0a6edb84641.dir
+      size: 5067929
+      nfiles: 2
+    - path: stages/prepare_data.py
+      hash: md5
+      md5: 348042e110fbac4b8faeaaa07a984a5e
+      size: 1233
+    outs:
+    - path: ../data/cleaned
+      hash: md5
+      md5: 49285229be370b8898a0139ad7613949.dir
+      size: 5126030
+      nfiles: 2
+  isolation_forest:
+    cmd: python stages/isolation_forest.py
+    deps:
+    - path: ../data/cleaned
+      hash: md5
+      md5: 49285229be370b8898a0139ad7613949.dir
+      size: 5126030
+      nfiles: 2
+    - path: stages/isolation_forest.py
+      hash: md5
+      md5: 706dadbd43948ad7f224eead070ae822
+      size: 341
+    params:
+      params.yaml:
+        isolation_forest.contamination: 0.05
+        isolation_forest.random_seed: 42
+    outs:
+    - path: outliers/IsolationForest_outliers.csv
+      hash: md5
+      md5: 82a1cd4a66e4816de81179d7844b53d5
+      size: 8458
+  elliptic_envelope:
+    cmd: python stages/elliptic_envelope.py
+    deps:
+    - path: ../data/cleaned
+      hash: md5
+      md5: 49285229be370b8898a0139ad7613949.dir
+      size: 5126030
+      nfiles: 2
+    - path: stages/elliptic_envelope.py
+      hash: md5
+      md5: d14b34fce5571a4a792ca679a2fbf984
+      size: 346
+    params:
+      params.yaml:
+        elliptic_envelope.contamination: 0.05
+        elliptic_envelope.random_seed: 42
+    outs:
+    - path: outliers/EllipticEnvelope_outliers.csv
+      hash: md5
+      md5: 21c0033b94d7f92bbc0d3479ea092f94
+      size: 8580
+  one_class_svm:
+    cmd: python stages/one_class_svm.py
+    deps:
+    - path: ../data/cleaned
+      hash: md5
+      md5: 49285229be370b8898a0139ad7613949.dir
+      size: 5126030
+      nfiles: 2
+    - path: stages/one_class_svm.py
+      hash: md5
+      md5: 727838ad47aca41a68c6554f5d19e387
+      size: 247
+    params:
+      params.yaml:
+        one_class_svm.gamma: 0.05
+    outs:
+    - path: outliers/OneClassSVM_outliers.csv
+      hash: md5
+      md5: c98db5783512c96bb7f10ab309224c5d
+      size: 12386

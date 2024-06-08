@@ -1,0 +1,84 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python stages/preprocess.py
+    deps:
+    - path: ../data/housing.csv
+      hash: md5
+      md5: d1c47305887e2252bf1ccbd74ff159a6
+      size: 1423529
+    - path: stages/preprocess.py
+      hash: md5
+      md5: 58b54fe8d3966c3da52f166b609f5c17
+      size: 959
+    outs:
+    - path: ../data/housing_clean.csv
+      hash: md5
+      md5: a5454e8120276554350ca25c245c7734
+      size: 5159760
+  train_val_split:
+    cmd: python stages/data_split.py
+    deps:
+    - path: ../data/housing_clean.csv
+      hash: md5
+      md5: a5454e8120276554350ca25c245c7734
+      size: 5159760
+    - path: stages/data_split.py
+      hash: md5
+      md5: 342ab231da74f1ad69b68615cf9fcd50
+      size: 765
+    params:
+      params.yaml:
+        data_split.random_seed: 42
+        data_split.test_size: 0.2
+    outs:
+    - path: ../data/split
+      hash: md5
+      md5: 77a802640800165bc0bac0a6edb84641.dir
+      size: 5067929
+      nfiles: 2
+  training:
+    cmd: python stages/train.py
+    deps:
+    - path: ../data/split/data_train.csv
+      hash: md5
+      md5: 030406296a7c4c77f9da55181b06d205
+      size: 4067481
+    - path: stages/train.py
+      hash: md5
+      md5: 334ca10f14626dbc7c3b1cdb2a774ec8
+      size: 1896
+    params:
+      params.yaml:
+        training.l2_regularization: 0
+        training.max_depth:
+        training.n_bins: 10
+        training.random_seed: 42
+    outs:
+    - path: models/
+      hash: md5
+      md5: 447dc84779cb8136ff9fa756641cbfa9.dir
+      size: 409731
+      nfiles: 1
+  evaluation:
+    cmd: python stages/evaluate.py
+    deps:
+    - path: ../data/split/data_val.csv
+      hash: md5
+      md5: 1a5f9be4930162e3b82943371e5d9ab4
+      size: 1000448
+    - path: models/
+      hash: md5
+      md5: 447dc84779cb8136ff9fa756641cbfa9.dir
+      size: 409731
+      nfiles: 1
+    - path: stages/evaluate.py
+      hash: md5
+      md5: 4cbef1c0ac2b47694b7c9365866387ac
+      size: 1585
+    outs:
+    - path: eval/
+      hash: md5
+      md5: 4b543432f0884529db4c5bcbc792fd22.dir
+      size: 252
+      nfiles: 1

@@ -1,0 +1,40 @@
+stages:
+  preprocess:
+    cmd: python stages/preprocess.py
+    deps:
+    - ../data/housing.csv
+    - stages/preprocess.py
+    outs:
+    - ../data/housing_clean.csv
+  train_val_split:
+    cmd: python stages/data_split.py
+    deps:
+    - ../data/housing_clean.csv
+    - stages/data_split.py
+    params:
+    - data_split.random_seed
+    - data_split.test_size
+    outs:
+    - ../data/split
+  training:
+    cmd: python stages/train.py
+    deps:
+    - ../data/split/data_train.csv
+    - stages/train.py
+    params:
+    - training.l2_regularization
+    - training.max_depth
+    - training.n_bins
+    - training.random_seed
+    outs:
+    - models/
+  evaluation:
+    cmd: python stages/evaluate.py
+    deps:
+    - ../data/split/data_val.csv
+    - models/
+    - stages/evaluate.py
+    outs:
+    - eval/
+metrics:
+- eval/metrics.json

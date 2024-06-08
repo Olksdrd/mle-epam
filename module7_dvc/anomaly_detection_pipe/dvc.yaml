@@ -1,0 +1,37 @@
+stages:
+  prepare_data:
+    cmd: python stages/prepare_data.py
+    deps:
+    - ../data/split
+    - stages/prepare_data.py
+    outs:
+    - ../data/cleaned
+  isolation_forest:
+    cmd: python stages/isolation_forest.py
+    deps:
+    - ../data/cleaned
+    - stages/isolation_forest.py
+    outs:
+    - outliers/IsolationForest_outliers.csv
+    params:
+    - isolation_forest.contamination
+    - isolation_forest.random_seed
+  elliptic_envelope:
+    cmd: python stages/elliptic_envelope.py
+    deps:
+    - ../data/cleaned
+    - stages/elliptic_envelope.py
+    outs:
+    - outliers/EllipticEnvelope_outliers.csv
+    params:
+    - elliptic_envelope.contamination
+    - elliptic_envelope.random_seed
+  one_class_svm:
+    cmd: python stages/one_class_svm.py
+    deps:
+    - ../data/cleaned
+    - stages/one_class_svm.py
+    outs:
+    - outliers/OneClassSVM_outliers.csv
+    params:
+    - one_class_svm.gamma
