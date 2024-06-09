@@ -10,13 +10,13 @@ docker build -t dvc .
 ```
 docker run -it --name dvc_cont --network=host --rm dvc
 ```
-5. Set up git inside a container
+4. Set up git inside a container
 ```
 git config --global user.email "you@example.com" && \
 git config --global user.name "Your Name" && \
 git init && \
 git add . && \
-git commit -m 'Initial commit"
+git commit -m "Initial commit"
 ```
 5. Download a version of the dataset that corresponds to md5 hash in a `data/housing.csv.dvc` file
 ```
