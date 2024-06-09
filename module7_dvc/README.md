@@ -59,4 +59,5 @@ dvc dag dvc.yaml
 ```
 This pipeline reuses 2 initial stages from the previous pipe.
 13. Run the second pipeline by `dvc repro`.
+14. You can use `dvc push` to save all the runs to dvc repo so there is no need to redo then again on host or in a different container.
 

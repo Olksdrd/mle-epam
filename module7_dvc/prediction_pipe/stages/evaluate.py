@@ -8,6 +8,7 @@ from dvclive import Live
 
 
 def validate_model(metrics_path):
+    """Log training and test R2, RMSE and MAE using DVC Live"""
     with open('models/cls.pkl', 'rb') as f:
         cls = pickle.load(f)
 

@@ -3,7 +3,7 @@ import os
 
 
 def detect_outliers(cls):
-    """Train and save an outlier detector for future use"""
+    """Train an outlier detector and save predictions"""
 
     X_train = pd.read_csv('../data/cleaned/X_train_clean.csv')
     X_val = pd.read_csv('../data/cleaned/X_val_clean.csv')

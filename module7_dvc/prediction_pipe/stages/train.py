@@ -13,8 +13,7 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 
 def train_model(cls):
     """
-    Train HGB model and saves the training pipeline
-    as a pickle file and as an mlflow model.
+    Train HGB model and save the training pipeline
     """
     X_train = pd.read_csv('../data/split/data_train.csv')
     y_train = X_train.pop('median_house_value')

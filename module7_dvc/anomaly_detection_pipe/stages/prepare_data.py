@@ -8,7 +8,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 
 def preprocess_data(pipeline):
-
+    """Preprocess data for anomaly detection"""
     X_train = pd.read_csv('../data/split/data_train.csv')
     X_train.pop('median_house_value')
     X_val = pd.read_csv('../data/split/data_val.csv')
